@@ -1,0 +1,28 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio / Rider / IDE files
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Test and coverage output
+TestResults/
+*.trx
+coverage/
+
+# NuGet and local tooling
+packages/
+.nuget/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local publish and profiling output
+publish/
+*.publishsettings

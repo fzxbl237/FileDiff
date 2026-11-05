@@ -1,6 +1,11 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using Avalonia.Themes.Fluent;
+using TKCode.Arc;
+using TKCode.Arc.Fonts;
 
 namespace FileDiff;
 
@@ -14,15 +19,20 @@ internal static class Program
         return 0;
     }
 
-    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<App>().UsePlatformDetect().LogToTrace();
+    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<App>()
+        .UsePlatformDetect()
+        .WithArcFonts()
+        .UseArc(arc => arc.UseArcControls())
+        .LogToTrace();
 }
 
 public sealed class App : Application
 {
     public override void Initialize()
     {
-        RequestedThemeVariant = Avalonia.Styling.ThemeVariant.Dark;
+        RequestedThemeVariant = Avalonia.Styling.ThemeVariant.Light;
         Styles.Add(new FluentTheme());
+        Resources.MergedDictionaries.Add(new FileDiff.Controls.FileDropzoneTheme());
     }
 
     public override void OnFrameworkInitializationCompleted()

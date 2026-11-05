@@ -8,11 +8,25 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PublishAot>true</PublishAot>
+  </PropertyGroup>
+  <!--
+    `dotnet publish` runs AssignTargetPaths before ResolveReferences, but Avalonia only adds
+    the !AvaloniaResources item just before ResolveReferences. During publish the item then
+    arrives after csc has collected its resources, so neither the XAML resource nor the
+    compiled XAML IL lands in the assembly and the AOT exe dies at startup with
+    "No precompiled XAML found". Generate the resources earlier to keep both paths equal.
+  -->
+  <Target Name="AvaloniaResourcesBeforeAssignTargetPaths" BeforeTargets="AssignTargetPaths" DependsOnTargets="GenerateAvaloniaResources;AddAvaloniaResources" />
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.4" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
     <PackageReference Include="PdfPig" Version="0.1.16" />
     <PackageReference Include="DiffPlex" Version="1.9.0" />
+    <PackageReference Include="TKCode.Arc" Version="0.4.0-preview.1" />
+    <PackageReference Include="TKCode.Arc.Fonts" Version="0.4.0-preview.1" />
+    <PackageReference Include="TKCode.Arc.Icons.Lucide" Version="0.4.0-preview.1" />
   </ItemGroup>
 </Project>

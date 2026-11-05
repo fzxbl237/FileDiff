@@ -1,0 +1,169 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:arc="using:TKCode.Arc"
+        x:Class="FileDiff.MainWindow"
+        Title="文档 Diff · 文本差异"
+        Width="1440" Height="940" MinWidth="1050" MinHeight="650"
+        WindowState="Maximized"
+        Background="#FFFFFF">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#D4D4D4" BorderThickness="0,0,0,1" Padding="0,8,12,8">
+      <Grid RowDefinitions="Auto,Auto">
+        <WrapPanel x:Name="ToolbarPrimary" Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock Text="DOC DIFF" FontSize="15" FontWeight="SemiBold" Foreground="#1F1F1F" Margin="12,0,14,0" VerticalAlignment="Center" />
+          <arc:Button x:Name="CompareButton" Content="开始比较" Variant="Primary" FontSize="12" Margin="0,0,6,0" Height="20" />
+          <arc:Button x:Name="CancelButton" Content="取消" Variant="Secondary" FontSize="12" Margin="0,0,6,0" IsEnabled="False" Height="20" />
+          <arc:Button x:Name="BackToFolderButton" Content="← 返回文件夹比较" Variant="Secondary" FontSize="12" Margin="0,0,6,0" IsVisible="False" Height="20" />
+          <arc:Button x:Name="SwapButton" Content="交换左右" Variant="Secondary" FontSize="12" Margin="0,0,6,0" Height="20" />
+          <arc:SegmentedControl x:Name="ComparisonMode" VerticalAlignment="Center" Margin="14,0,0,0" SelectedValue="file">
+            <arc:SegmentedOption Value="file" Label="文件比较" />
+            <arc:SegmentedOption Value="folder" Label="文件夹比较" />
+          </arc:SegmentedControl>
+        </WrapPanel>
+        <WrapPanel x:Name="ToolbarSecondary" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" ItemSpacing="6" Margin="12,6,0,0">
+          <Border x:Name="SyncChip" Padding="7,1" Margin="0,2,6,2" CornerRadius="4" BorderThickness="1" BorderBrush="#D4D4D4" Background="#FAFAFA" VerticalAlignment="Center">
+            <arc:Checkbox x:Name="SyncCheckbox" Content="同步滚动" IsChecked="True" FontSize="12" />
+          </Border>
+          <Border x:Name="HighlightChip" Padding="7,1" Margin="0,2,6,2" CornerRadius="4" BorderThickness="1" BorderBrush="#D4D4D4" Background="#FAFAFA" VerticalAlignment="Center">
+            <arc:Checkbox x:Name="HighlightCheckbox" Content="差异高亮" IsChecked="True" FontSize="12" />
+          </Border>
+          <Border x:Name="RowFilterChip" Padding="7,1" Margin="0,2,6,2" CornerRadius="4" BorderThickness="1" BorderBrush="#D4D4D4" Background="#FAFAFA" VerticalAlignment="Center">
+            <arc:SegmentedControl x:Name="RowFilterMode" VerticalAlignment="Center" SelectedValue="all">
+              <arc:SegmentedOption Value="all" Label="all" />
+              <arc:SegmentedOption Value="diffs" Label="diffs" />
+              <arc:SegmentedOption Value="same" Label="same" />
+            </arc:SegmentedControl>
+          </Border>
+          <Border x:Name="IgnoreWhitespaceChip" Padding="7,1" Margin="0,2,6,2" CornerRadius="4" BorderThickness="1" BorderBrush="#D4D4D4" Background="#FAFAFA" VerticalAlignment="Center">
+            <arc:Checkbox x:Name="IgnoreWhitespaceCheckbox" Content="忽略空白" IsChecked="True" FontSize="12" />
+          </Border>
+          <Border x:Name="PdfTextModeChip" Padding="7,1" Margin="0,2,6,2" CornerRadius="4" BorderThickness="1" BorderBrush="#D4D4D4" Background="#FAFAFA" VerticalAlignment="Center">
+            <arc:Checkbox x:Name="PdfTextModeCheckbox" Content="全文模式" IsChecked="True" FontSize="12" />
+          </Border>
+          <StackPanel x:Name="FolderOptions" Orientation="Horizontal" VerticalAlignment="Center" IsVisible="False">
+            <TextBlock Text="判定" FontSize="12" Foreground="#6E6E6E" Margin="2,0,6,0" VerticalAlignment="Center" />
+            <arc:Select x:Name="CriteriaSelect" FontSize="12" MinWidth="150" Margin="0,0,6,0" Size="Small" SelectedIndex="0">
+              <arc:SelectItem Content="大小 + 时间（默认）" Value="大小 + 时间（默认）" />
+              <arc:SelectItem Content="内容" Value="内容" />
+              <arc:SelectItem Content="大小" Value="大小" />
+              <arc:SelectItem Content="时间" Value="时间" />
+            </arc:Select>
+            <TextBlock Text="显示" FontSize="12" Foreground="#6E6E6E" Margin="2,0,6,0" VerticalAlignment="Center" />
+            <arc:Select x:Name="FolderDisplaySelect" FontSize="12" MinWidth="110" Margin="0,0,6,0" Size="Small" SelectedIndex="0">
+              <arc:SelectItem Content="全部" Value="全部" />
+              <arc:SelectItem Content="仅差异" Value="仅差异" />
+              <arc:SelectItem Content="无孤儿" Value="无孤儿" />
+            </arc:Select>
+            <arc:Button x:Name="ExpandAllButton" Content="全部展开" Variant="Secondary" FontSize="12" Margin="0,0,6,0" Height="20" />
+            <arc:Button x:Name="CollapseAllButton" Content="全部收起" Variant="Secondary" FontSize="12" Margin="0,0,6,0" Height="20" />
+          </StackPanel>
+          <Border Width="1" Height="16" Background="#D4D4D4" Margin="4,0,10,0" VerticalAlignment="Center" />
+          <arc:Button x:Name="PreviousDiffButton" Content="上一差异" Variant="Secondary" FontSize="12" Height="20" />
+          <arc:Button x:Name="NextDiffButton" Content="下一差异" Variant="Secondary" FontSize="12" Height="20" />
+          <arc:Button x:Name="ZoomOutButton" Content="缩小 −" Variant="Secondary" FontSize="12" Margin="0,0,6,0" Height="20" />
+          <Border x:Name="ZoomLabelHost" Margin="2,0,8,0" VerticalAlignment="Center">
+            <TextBlock x:Name="ZoomLabel" Text="100%" FontSize="11" Foreground="#1F1F1F" MinWidth="42" TextAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <arc:Button x:Name="ZoomInButton" Content="放大 +" Variant="Secondary" FontSize="12" Margin="0,0,6,0" Height="20" />
+          <arc:Button x:Name="ZoomResetButton" Content="恢复 100%" Variant="Secondary" FontSize="12" Margin="0,0,6,0" Height="20" />
+        </WrapPanel>
+      </Grid>
+    </Border>
+
+    <Grid x:Name="ContentGrid" Grid.Row="1" ColumnDefinitions="0,*,5,*">
+      <Border x:Name="Sidebar" Grid.Column="0" Background="#FFFFFF" BorderBrush="#D4D4D4" BorderThickness="0,0,1,0" IsVisible="False">
+        <Grid RowDefinitions="Auto,*,Auto">
+          <TextBlock Text="页面列表" FontSize="11" FontWeight="SemiBold" Foreground="#6E6E6E" Margin="12,10,0,6" />
+          <Border Grid.Row="1" Margin="6,0" CornerRadius="6" ClipToBounds="True" Background="#F5F5F5" BorderBrush="#D4D4D4" BorderThickness="1" Padding="2">
+            <ListBox x:Name="PagesList" Background="Transparent" BorderThickness="0" />
+          </Border>
+          <StackPanel Grid.Row="2" Margin="12,10,8,10">
+            <StackPanel Orientation="Horizontal" Margin="0,1">
+              <Border Width="9" Height="9" Background="#D32F2F" CornerRadius="2" VerticalAlignment="Center" Margin="0,0,6,0" />
+              <TextBlock Text="红：旧版删除或修改" FontSize="11" Foreground="#6E6E6E" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,1">
+              <Border Width="9" Height="9" Background="#2E7D32" CornerRadius="2" VerticalAlignment="Center" Margin="0,0,6,0" />
+              <TextBlock Text="绿：新版新增或修改" FontSize="11" Foreground="#6E6E6E" />
+            </StackPanel>
+            <TextBlock Text="无文本页（扫描件）不比较图像，也不做 OCR。" FontSize="11" Foreground="#6E6E6E" TextWrapping="Wrap" Margin="0,8,0,0" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <Grid x:Name="LeftSlot" Grid.Column="1">
+        <Border x:Name="LeftPane" IsVisible="False" CornerRadius="6" ClipToBounds="True" Background="#ECECEC" BorderBrush="#D4D4D4" BorderThickness="1" Margin="0,8">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <Border Background="#F5F5F5" BorderBrush="#D4D4D4" BorderThickness="0,0,0,1">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Margin="12,6,8,6">
+                  <TextBlock x:Name="LeftName" Text="旧版 · 尚未选择" FontSize="12" Foreground="#1F1F1F" TextTrimming="CharacterEllipsis" />
+                  <TextBlock x:Name="LeftInfo" FontSize="11" Foreground="#6E6E6E" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <StackPanel x:Name="LeftPaneActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                  <arc:Badge x:Name="LeftBadge" Content="文本差异" Tone="Warning" Size="Small" Margin="8,0,0,0" VerticalAlignment="Center" IsVisible="False" />
+                  <TextBlock x:Name="LeftPosition" Text="行:1 列:1" FontSize="11" Foreground="#1F1F1F" VerticalAlignment="Center" Margin="8,0,12,0" />
+                  <arc:Button x:Name="RemoveLeftButton" Content="移除文件" Variant="Secondary" FontSize="11" Padding="8,2" Margin="8,0,0,0" Height="20" />
+                </StackPanel>
+              </Grid>
+            </Border>
+            <Border x:Name="LeftScrollHost" Grid.Row="1" Background="#ECECEC">
+              <arc:ScrollArea x:Name="LeftScrollArea" Orientation="Both" OverlayScrollbarMode="Always" FadeLength="0" Background="#ECECEC" />
+            </Border>
+            <Border Grid.Row="2" Background="#F5F5F5" BorderBrush="#D4D4D4" BorderThickness="0,1,0,0">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="编辑已禁用" FontSize="11" Foreground="#6E6E6E" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,3" />
+                <TextBlock Grid.Column="1" Text="▤" FontSize="10" Foreground="#6E6E6E" Margin="6,0,8,0" VerticalAlignment="Center" />
+              </Grid>
+            </Border>
+          </Grid>
+        </Border>
+        <arc:FileDropzone x:Name="LeftFileDropzone" AllowMultiple="False" MaxFiles="1" CompactAt="1" Label="打开旧版文件" Description="拖入 PDF / RTF / Word / 代码文本文件，或点击此处从本机选择" Note="支持 PDF、RTF、DOCX 以及 HTML/CSS/JS/CS/SAS 等纯文本，每次一个" VerticalAlignment="Center" Margin="20,0" />
+      </Grid>
+
+      <GridSplitter x:Name="Divider" Grid.Column="2" Width="5" Background="#FFFFFF" ResizeDirection="Columns" />
+
+      <Grid x:Name="RightSlot" Grid.Column="3">
+        <Border x:Name="RightPane" IsVisible="False" CornerRadius="6" ClipToBounds="True" Background="#ECECEC" BorderBrush="#D4D4D4" BorderThickness="1" Margin="0,8">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <Border Background="#F5F5F5" BorderBrush="#D4D4D4" BorderThickness="0,0,0,1">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Margin="12,6,8,6">
+                  <TextBlock x:Name="RightName" Text="新版 · 尚未选择" FontSize="12" Foreground="#1F1F1F" TextTrimming="CharacterEllipsis" />
+                  <TextBlock x:Name="RightInfo" FontSize="11" Foreground="#6E6E6E" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <StackPanel x:Name="RightPaneActions" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                  <arc:Badge x:Name="RightBadge" Content="文本差异" Tone="Warning" Size="Small" Margin="8,0,0,0" VerticalAlignment="Center" IsVisible="False" />
+                  <TextBlock x:Name="RightPosition" Text="行:1 列:1" FontSize="11" Foreground="#1F1F1F" VerticalAlignment="Center" Margin="8,0,12,0" />
+                  <arc:Button x:Name="RemoveRightButton" Content="移除文件" 
+                              Variant="Secondary" FontSize="11" Padding="8,2" Margin="8,0,0,0" Height="20" />
+                </StackPanel>
+              </Grid>
+            </Border>
+            <Border x:Name="RightScrollHost" Grid.Row="1" Background="#ECECEC">
+              <arc:ScrollArea x:Name="RightScrollArea" Orientation="Both" OverlayScrollbarMode="Always" FadeLength="0" Background="#ECECEC" />
+            </Border>
+            <Border Grid.Row="2" Background="#F5F5F5" BorderBrush="#D4D4D4" BorderThickness="0,1,0,0">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="默认文本" FontSize="11" Foreground="#6E6E6E" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,3" />
+                <TextBlock Grid.Column="1" Text="▤" FontSize="10" Foreground="#6E6E6E" Margin="6,0,8,0" VerticalAlignment="Center" />
+              </Grid>
+            </Border>
+          </Grid>
+        </Border>
+        <arc:FileDropzone x:Name="RightFileDropzone" AllowMultiple="False" MaxFiles="1" CompactAt="1" Label="打开新版文件" Description="拖入 PDF / RTF / Word / 代码文本文件，或点击此处从本机选择" Note="支持 PDF、RTF、DOCX 以及 HTML/CSS/JS/CS/SAS 等纯文本，每次一个" VerticalAlignment="Center" Margin="20,0" />
+      </Grid>
+
+      <Border x:Name="FolderHost" Grid.Column="0" Grid.ColumnSpan="4" Margin="12,8" CornerRadius="6" ClipToBounds="True" BorderBrush="#D4D4D4" BorderThickness="1" IsVisible="False" />
+    </Grid>
+
+    <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="#D4D4D4" BorderThickness="0,1,0,0" Padding="0,4">
+      <Grid ColumnDefinitions="Auto,*">
+        <TextBlock x:Name="PageIndicator" Text="页:0/0" FontSize="11" Foreground="#1F1F1F" VerticalAlignment="Center" Margin="10,0,0,0" />
+        <Border Grid.Column="1" Background="#F5F5F5" BorderBrush="#D4D4D4" BorderThickness="1" CornerRadius="3" Padding="8,3" Margin="12,0,12,0">
+          <TextBlock x:Name="StatusText" Text="选择两个 PDF / RTF / Word / 代码文本文件自动比较，所有处理均在本机完成。" FontSize="11" Foreground="#6E6E6E" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+        </Border>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
